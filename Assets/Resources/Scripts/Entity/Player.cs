@@ -51,7 +51,11 @@ sealed class Player : MonoBehaviour, Controls.IPlayerActions
   {
     if (context.performed) 
     {
-      if (UIManager.instance.IsMenuOpen) 
+      if (!UIManager.instance.IsEscapeMenuOpen && !UIManager.instance.IsMenuOpen) 
+      {
+        UIManager.instance.ToggleEscapeMenu();
+      } 
+      else if (UIManager.instance.IsMenuOpen) 
       {
         UIManager.instance.ToggleMenu();
       } 
@@ -59,14 +63,10 @@ sealed class Player : MonoBehaviour, Controls.IPlayerActions
       {
         ToggleTargetMode();
       }
-
-      Debug.Log("Exiting the game...");
-        UIManager.instance.ToggleMenu();
-      Application.Quit(); // This will close the application. Won't work in the editor.
     }
   }
 
-  // Handle reloading the level (R key) *****************
+  /*// Handle reloading the level (R key) *****************
   void Controls.IPlayerActions.OnReload(InputAction.CallbackContext context) 
   {
     if (context.performed) 
@@ -74,7 +74,7 @@ sealed class Player : MonoBehaviour, Controls.IPlayerActions
       Debug.Log("Reloading the level...");
       SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);  // Reload the current scene
     }
-  }
+  }*/
 
   public void OnView(InputAction.CallbackContext context) 
   {

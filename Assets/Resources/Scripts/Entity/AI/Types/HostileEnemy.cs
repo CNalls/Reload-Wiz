@@ -15,7 +15,8 @@ public class HostileEnemy : AI
 
   public override void RunAI() 
   {
-    if (!fighter.Target) {
+    if (!fighter.Target) 
+    {
       fighter.Target = GameManager.instance.Actors[0];
     } 
     else if (fighter.Target && !fighter.Target.IsAlive) 
@@ -50,4 +51,9 @@ public class HostileEnemy : AI
 
     Action.WaitAction();
   }
+
+  public override AIState SaveState() => new AIState
+  (
+    type: "HostileEnemy"
+  );
 }

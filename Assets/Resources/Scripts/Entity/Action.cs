@@ -1,9 +1,9 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-static public class Action {
+static public class Action 
+{
   static public void WaitAction() 
   {
     GameManager.instance.EndTurn();
@@ -65,7 +65,8 @@ static public class Action {
   {
     for (int i = 0; i < GameManager.instance.Entities.Count; i++) 
     {
-      if (GameManager.instance.Entities[i].GetComponent<Actor>() || actor.transform.position != GameManager.instance.Entities[i].transform.position) {
+      if (GameManager.instance.Entities[i].GetComponent<Actor>() || actor.transform.position != GameManager.instance.Entities[i].transform.position) 
+      {
         continue;
       }
 
@@ -76,12 +77,9 @@ static public class Action {
       }
 
       Item item = GameManager.instance.Entities[i].GetComponent<Item>();
-      item.transform.SetParent(actor.transform);
-      actor.Inventory.Items.Add(item);
+      actor.Inventory.Add(item);
 
       UIManager.instance.AddMessage($"You picked up the {item.name}!", "#FFFFFF");
-
-      GameManager.instance.RemoveEntity(item);
       GameManager.instance.EndTurn();
     }
   }
