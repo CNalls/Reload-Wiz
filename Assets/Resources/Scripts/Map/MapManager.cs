@@ -13,8 +13,14 @@ public class MapManager : MonoBehaviour
     [SerializeField] private int roomMaxSize = 10;
     [SerializeField] private int roomMinSize = 6;
     [SerializeField] private int maxRooms = 30;
-
     [SerializeField] private int maxMonstersPerRoom = 2;
+    [SerializeField] private int maxItemsPerRoom = 2;
+    //[SerializeField] private int maxChestsPerRoom = 2;
+    //[SerializeField] private int maxTorchesPerRoom = 2;
+
+    [Header("Prefabs:")]
+    //[SerializeField] private GameObject torchPrefab; // Add this line for the torch prefab
+
 
     [Header("Tiles:")]
     [SerializeField] private TileBase floorTile;
@@ -71,16 +77,33 @@ public class MapManager : MonoBehaviour
   private void Start() 
   {
     ProcGen procGen = new ProcGen();
-    procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, maxMonstersPerRoom, rooms);
+    procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, maxMonstersPerRoom, maxItemsPerRoom, rooms);
 
     AddTileMapToDictionary(floorMap);
     AddTileMapToDictionary(obstacleMap);
 
     SetupFogMap();
 
+    //InstantiateTorchesInRooms(); // Call the new method to place torches
+
     Camera.main.transform.position = new Vector3(40, 20.25f, -10);
-    //Camera.main.orthographicSize = 27;
+    Camera.main.orthographicSize = 27;
   }
+
+  // Method to instantiate torches in each room
+    /*private void InstantiateTorchesInRooms()
+    {
+        foreach (RectangularRoom room in rooms)
+        {
+            // Randomly determine the number of torches to place in this room (between 1 and max per room)
+            int torchCount = Random.Range(1, maxItemsPerRoom + 1);
+            for (int i = 0; i < torchCount; i++)
+            {
+                Vector2 randomPosition = room.RandomPosition();
+                CreateEntity("Torch", randomPosition); // Use the CreateEntity method
+            }
+        }
+    }*/
 
   ///<summary>Return True if x and y are inside of the bounds of this map. </summary>
   public bool InBounds(int x, int y) => 0 <= x && x < width && 0 <= y && y < height;
@@ -107,9 +130,27 @@ public class MapManager : MonoBehaviour
       case "Zombie":
         Instantiate(Resources.Load<GameObject>("Zombie"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Zombie";
         break;
-      default:
-        Debug.LogError("Entity not found");
+      case "Potion Of Health":
+        Instantiate(Resources.Load<GameObject>("Potion Of Health"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Potion Of Health";
         break;
+      case "Fireball Scroll":
+        Instantiate(Resources.Load<GameObject>("Fireball Scroll"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Fireball Scroll";
+        break;
+      case "Confusion Scroll":
+        Instantiate(Resources.Load<GameObject>("Confusion Scroll"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Confusion Scroll";
+        break;
+      case "Lightning Scroll":
+        Instantiate(Resources.Load<GameObject>("Lightning Scroll"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Lightning Scroll";
+        break;
+      /*case "Torch":
+        Instantiate(Resources.Load<GameObject>("Torch"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Torch";
+        break;
+      case "Chest":
+        Instantiate(Resources.Load<GameObject>("Chest"), new Vector3(position.x + 0.5f, position.y + 0.5f, 0), Quaternion.identity).name = "Chest";
+        break;*/
+      default:
+      Debug.LogError("Entity not found");
+      break;
     }
   }
 
@@ -178,5 +219,15 @@ public class MapManager : MonoBehaviour
       fogMap.SetTile(pos, fogTile);
       fogMap.SetTileFlags(pos, TileFlags.None);
     }
+  }
+
+  public bool IsValidPosition(Vector3 futurePosition) 
+  {
+    Vector3Int gridPosition = floorMap.WorldToCell(futurePosition);
+    if (!InBounds(gridPosition.x, gridPosition.y) || obstacleMap.HasTile(gridPosition)) 
+    {
+      return false;
+    }
+    return true;
   }
 }

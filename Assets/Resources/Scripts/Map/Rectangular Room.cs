@@ -20,6 +20,20 @@ public class RectangularRoom
         this.height = height;
     }
 
+    // X1, Y1 are the top-left corner, X2, Y2 are the bottom-right corner
+    public int X1 => X;
+    public int Y1 => Y;
+    public int X2 => X + Width;
+    public int Y2 => Y + Height;
+
+    // Get a random valid position within the room (avoiding the walls)
+    public Vector2 RandomPosition()
+    {
+        int randomX = Random.Range(X1 + 1, X2 - 1); // Inside room, avoiding walls
+        int randomY = Random.Range(Y1 + 1, Y2 - 1); // Inside room, avoiding walls
+        return new Vector2(randomX, randomY);
+    }
+
     public Vector2Int Center() => new Vector2Int(x + width / 2, y + height / 2); //returns center most points of the room
 
     /// <summary>
@@ -44,4 +58,11 @@ public class RectangularRoom
         }
         return false;
     }
+
+    // method to check if a point is inside the room
+    public bool Contains(int x, int y)
+    {
+        return x >= X1 && x <= X2 && y >= Y1 && y <= Y2;
+    }
+
 }

@@ -11,7 +11,7 @@ sealed class ProcGen
     /// <summary>
     /// Generate a new dungeon map
     /// </summary>
-    public void GenerateDungeon(int mapWidth, int mapHeight, int roomMaxSize, int roomMinSize, int maxRooms, int maxMonstersPerRoom, List<RectangularRoom> rooms)
+    public void GenerateDungeon(int mapWidth, int mapHeight, int roomMaxSize, int roomMinSize, int maxRooms, int maxMonstersPerRoom, int maxItemsPerRoom, List<RectangularRoom> rooms)
     {
         //Generate the rooms
         for (int roomNum = 0; roomNum < maxRooms; roomNum++) //room num = 0 and if less that max rooms increment +
@@ -112,7 +112,7 @@ sealed class ProcGen
                 
             }
 
-            PlaceActors(newRoom, maxMonstersPerRoom);
+            PlaceEntities(newRoom, maxMonstersPerRoom, maxMonstersPerRoom);
             rooms.Add(newRoom);
         }
 
@@ -237,11 +237,57 @@ sealed class ProcGen
             MapManager.instance.ObstacleMap.SetTile(pos, wallTile);
         }
     } 
-    private void PlaceActors(RectangularRoom newRoom, int maximumMonsters) 
+    private void PlaceEntities(RectangularRoom newRoom, int maximumMonsters, int maximumItems) 
     {
         int numberOfMonsters = Random.Range(0, maximumMonsters + 1);
+        int numberOfItems = Random.Range(0, maximumItems + 1);
 
         for (int monster = 0; monster < numberOfMonsters;) 
+        {
+            int x = Random.Range(newRoom.X, newRoom.X + newRoom.Width);
+            int y = Random.Range(newRoom.Y, newRoom.Y + newRoom.Height);
+
+            if (x == newRoom.X || x == newRoom.X + newRoom.Width - 1 || y == newRoom.Y || y == newRoom.Y + newRoom.Height - 1) 
+            {
+                continue;
+            }
+
+        for (int entity = 0; entity < GameManager.instance.Entities.Count; entity++) 
+        {
+            Vector3Int pos = MapManager.instance.FloorMap.WorldToCell(GameManager.instance.Entities[entity].transform.position);
+
+            if (pos.x == x && pos.y == y) 
+            {
+            return;
+            }
+        }
+
+        float randomValue = Random.value;
+
+        if (randomValue < 0.35f) //use float holder value to store the number | and upadate this randomness to increase the likely hood of a certain enemy spawning until it does
+        {
+            MapManager.instance.CreateEntity("Skeleton", new Vector2(x, y));
+        } 
+        else if(randomValue < 0.55f)
+        {
+            MapManager.instance.CreateEntity("Zombie", new Vector2(x, y));
+        }
+        else if(randomValue < 0.75f)
+        {
+            MapManager.instance.CreateEntity("Goblin", new Vector2(x, y));
+        }
+        else if(randomValue < 0.9f)
+        {
+            MapManager.instance.CreateEntity("Orc", new Vector2(x, y));
+        }
+        else
+        {
+            MapManager.instance.CreateEntity("Troll", new Vector2(x, y));
+        }
+        monster++;
+        }
+
+        for (int item = 0; item < numberOfItems;) 
         {
             int x = Random.Range(newRoom.X, newRoom.X + newRoom.Width);
             int y = Random.Range(newRoom.Y, newRoom.Y + newRoom.Height);
@@ -261,27 +307,33 @@ sealed class ProcGen
             }
         }
 
-        if (Random.value < 0.8f) 
+        float randomValue = Random.value;
+        if (randomValue < 0.7f) 
         {
-            MapManager.instance.CreateEntity("Orc", new Vector2(x, y));
+            MapManager.instance.CreateEntity("Potion of Health", new Vector2(x, y));
+        } 
+        else if (randomValue < 0.8f) 
+        {
+            MapManager.instance.CreateEntity("Fireball Scroll", new Vector2(x, y));
+        } 
+        else if (randomValue < 0.9f) 
+        {
+            MapManager.instance.CreateEntity("Confusion Scroll", new Vector2(x, y));
         } 
         else 
         {
-            MapManager.instance.CreateEntity("Troll", new Vector2(x, y));
+            MapManager.instance.CreateEntity("Lightning Scroll", new Vector2(x, y));
         }
-        /*else
-        {
-            MapManager.instance.CreateEntity("Goblin", new Vector2(x, y));
-        }
-        else
-        {
-            MapManager.instance.CreateEntity("Skeleton", new Vector2(x, y));
-        }
-        else
-        {
-            MapManager.instance.CreateEntity("Zombie", new Vector2(x, y));
-        }*/
-        monster++;
+
+        item++;
+
+        //if (Random.value < 0.8f) 
+        //{
+        //    MapManager.instance.CreateEntity("Potion Of Health", new Vector2(x, y));
+        //} 
+        //else 
+        //{
+        //    MapManager.instance.CreateEntity("Troll", new Vector2(x, y));
         }
     }
 }

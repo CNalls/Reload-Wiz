@@ -15,6 +15,8 @@ public class Actor : Entity
   public List<Vector3Int> FieldOfView { get => fieldOfView; }
   public Inventory Inventory { get => inventory; }
 
+  public AI AI { get => aI; set => aI = value; }
+
   private void OnValidate() 
   {
     if (GetComponent<Inventory>()) 
@@ -45,13 +47,15 @@ public class Actor : Entity
     UpdateFieldOfView();
   }
 
-  public void UpdateFieldOfView() {
+  public void UpdateFieldOfView() 
+  {
     Vector3Int gridPosition = MapManager.instance.FloorMap.WorldToCell(transform.position);
 
     fieldOfView.Clear();
     algorithm.Compute(gridPosition, fieldOfViewRange, fieldOfView);
 
-    if (GetComponent<Player>()) {
+    if (GetComponent<Player>()) 
+    {
       MapManager.instance.UpdateFogMap(fieldOfView);
       MapManager.instance.SetEntitiesVisibilities();
     }

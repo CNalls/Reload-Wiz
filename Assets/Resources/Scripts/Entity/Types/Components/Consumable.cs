@@ -1,18 +1,21 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Consumable : MonoBehaviour
+[RequireComponent(typeof(Item))]
+public class Consumable : MonoBehaviour 
 {
-    // Start is called before the first frame update
-    void Start()
+  public virtual bool Activate(Actor actor) => false;
+  public virtual bool Cast(Actor actor, Actor target) => false;
+  public virtual bool Cast(Actor actor, List<Actor> targets) => false;
+
+  public void Consume(Actor consumer) 
+  {
+    if (consumer.GetComponent<Inventory>().SelectedConsumable == this) 
     {
-        
+      consumer.GetComponent<Inventory>().SelectedConsumable = null;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    consumer.Inventory.Items.Remove(GetComponent<Item>());
+    Destroy(gameObject);
+  }
 }

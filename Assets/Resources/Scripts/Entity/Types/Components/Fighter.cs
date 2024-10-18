@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Actor))]
@@ -14,11 +12,12 @@ sealed class Fighter : MonoBehaviour
     {
       hp = Mathf.Max(0, Mathf.Min(value, maxHp));
 
-      if (GetComponent<Player>())
+      if (GetComponent<Player>()) 
       {
         UIManager.instance.SetHealth(hp, maxHp);
       }
-      if (hp == 0)  // die if hp = 0
+
+      if (hp == 0)
         Die();
     }
   }
@@ -41,20 +40,42 @@ sealed class Fighter : MonoBehaviour
     if (GetComponent<Player>()) 
     {
       UIManager.instance.AddMessage("You died!", "#ff0000"); //Red
-    } else {
+    } 
+    else 
+    {
       UIManager.instance.AddMessage($"{name} is dead!", "#ffa500"); //Light Orange
     }
 
     SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
     spriteRenderer.sprite = GameManager.instance.DeadSprite;
     spriteRenderer.color = new Color(191, 0, 0, 1);
-    spriteRenderer.sortingOrder = 1;
+    spriteRenderer.sortingOrder = 0;
 
     name = $"Remains of {name}";
     GetComponent<Actor>().BlocksMovement = false;
     GetComponent<Actor>().IsAlive = false;
-    if (!GetComponent<Player>()) {
+    if (!GetComponent<Player>()) 
+    {
       GameManager.instance.RemoveActor(this.GetComponent<Actor>());
     }
+  }
+
+  public int Heal(int amount) 
+  {
+    if (hp == maxHp) 
+    {
+      return 0;
+    }
+
+    int newHPValue = hp + amount;
+
+    if (newHPValue > maxHp) 
+    {
+      newHPValue = maxHp;
+    }
+
+    int amountRecovered = newHPValue - hp;
+    Hp = newHPValue;
+    return amountRecovered;
   }
 }

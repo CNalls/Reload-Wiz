@@ -6,8 +6,9 @@ public class AI : MonoBehaviour
   [SerializeField] private AStar aStar;
 
   public AStar AStar { get => aStar; set => aStar = value; }
-
   private void OnValidate() => aStar = GetComponent<AStar>();
+
+  public virtual void RunAI() { }
 
   public void MoveAlongPath(Vector3Int targetPosition) 
   {

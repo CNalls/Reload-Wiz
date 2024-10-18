@@ -43,13 +43,13 @@ public class GameManager : MonoBehaviour
     } 
     else 
     {
-      if (actors[actorNum].GetComponent<HostileEnemy>()) 
+      if (actors[actorNum].AI != null) 
       {
-        actors[actorNum].GetComponent<HostileEnemy>().RunAI();
+        actors[actorNum].AI.RunAI();
       } 
       else 
       {
-        Action.SkipAction();
+        Action.WaitAction();
       }
     }
   }
@@ -64,7 +64,9 @@ public class GameManager : MonoBehaviour
     if (actorNum == actors.Count - 1) 
     {
       actorNum = 0;
-    } else {
+    } 
+    else 
+    {
       actorNum++;
     }
 
@@ -88,7 +90,7 @@ public class GameManager : MonoBehaviour
 
   public void RemoveEntity(Entity entity) 
   {
-    entity.gameObject.SetActive(false);  
+    entity.gameObject.SetActive(false);
     entities.Remove(entity);
   }
 
@@ -110,7 +112,7 @@ public class GameManager : MonoBehaviour
     delayTime = SetTime();
   }
 
-  public Actor GetBlockingActorAtLocation(Vector3 location) 
+  public Actor GetActorAtLocation(Vector3 location) 
   {
     foreach (Actor actor in actors) 
     {
