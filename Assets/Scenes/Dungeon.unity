@@ -322,8 +322,8 @@ MonoBehaviour:
   rightWallTile: {fileID: 11400000, guid: c453b890f9a0e1c46a0c1e7ffd74fc81, type: 2}
   topWallTile: {fileID: 11400000, guid: d3ae1ff3bc7e30442ac8d47cd2aa657d, type: 2}
   bottomWallTile: {fileID: 11400000, guid: 81ba10cab7f4e3e4fbe4a9439fde3abd, type: 2}
-  topLeftCornerTile: {fileID: 11400000, guid: d5b4a8a22faa58d43a3274f3964454fc, type: 2}
-  topRightCornerTile: {fileID: 11400000, guid: c453b890f9a0e1c46a0c1e7ffd74fc81, type: 2}
+  topLeftCornerTile: {fileID: 11400000, guid: 288a035d286f5984da47f1007b8576ed, type: 2}
+  topRightCornerTile: {fileID: 11400000, guid: c99596bba22cfc44496c69c9933f7f31, type: 2}
   bottomLeftCornerTile: {fileID: 11400000, guid: 38d1ad50b0cbc894f812639bce38493d, type: 2}
   bottomRightCornerTile: {fileID: 11400000, guid: 67584725ba9a9734fa50fb1869c85738, type: 2}
   fogTile: {fileID: 11400000, guid: 818ef5dce7b806b4b8b74bdd199c5d4a, type: 2}
@@ -1299,6 +1299,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3139680482628646152, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3378787202240459750, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1330,6 +1334,12 @@ PrefabInstance:
     - target: {fileID: 5394360050739952891, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 5467601377819153959, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
+      propertyPath: m_text
+      value: '(d) Exit
+
+'
       objectReference: {fileID: 0}
     - target: {fileID: 5974861291452903786, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
       propertyPath: m_Pivot.x
@@ -1435,6 +1445,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6737077205506686019, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6737077205506686019, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.0000076293945
+      objectReference: {fileID: 0}
+    - target: {fileID: 6737077205506686019, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -2
+      objectReference: {fileID: 0}
     - target: {fileID: 7007411388888159856, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -71.899994
@@ -1446,6 +1468,14 @@ PrefabInstance:
     - target: {fileID: 7151065927072947116, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7746156901139129099, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -69.01001
+      objectReference: {fileID: 0}
+    - target: {fileID: 7746156901139129099, guid: 24256644cda7ad247ab2ba6c69d6d651, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -157
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -1,0 +1,1 @@
+//make enemy take tick damage for 10 turns

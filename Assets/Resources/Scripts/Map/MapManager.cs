@@ -81,7 +81,7 @@ public class MapManager : MonoBehaviour
     SceneManager.sceneLoaded += OnSceneLoaded;
   }
 
-   private void OnSceneLoaded(Scene scene, LoadSceneMode mode) 
+   /*private void OnSceneLoaded(Scene scene, LoadSceneMode mode) 
    {
     SceneState sceneState = SaveManager.instance.Save.Scenes.Find(x => x.FloorNumber == SaveManager.instance.CurrentFloor);
 
@@ -93,7 +93,30 @@ public class MapManager : MonoBehaviour
     {
       GenerateDungeon();
     }
+  }*/
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) 
+  {
+      // Check and log if tilemaps are not initialized
+      if (floorMap == null) Debug.LogError("FloorMap is not assigned!");
+      if (obstacleMap == null) Debug.LogError("ObstacleMap is not assigned!");
+      if (fogMap == null) Debug.LogError("FogMap is not assigned!");
+
+      // If any of these are null, you should initialize them or ensure they are assigned.
+      SceneState sceneState = SaveManager.instance.Save.Scenes.Find(x => x.FloorNumber == SaveManager.instance.CurrentFloor);
+
+      if (sceneState != null) 
+      {
+          LoadState(sceneState.MapState);
+      } 
+      else 
+      {
+          // Handle when there is no saved scene state
+          GenerateDungeon();
+      }
   }
+
+
 
   private void Start() 
   {
@@ -213,7 +236,8 @@ public class MapManager : MonoBehaviour
     }
   }
 
-  public void SetEntitiesVisibilities() {
+  public void SetEntitiesVisibilities() 
+  {
     foreach (Entity entity in GameManager.instance.Entities) 
     {
       if (entity.GetComponent<Player>()) 
@@ -289,6 +313,60 @@ public class MapManager : MonoBehaviour
 
   public MapState SaveState() => new MapState(tiles, rooms);
 
+  
+  /*public void LoadState(MapState mapState) 
+  {
+      rooms = mapState.StoredRooms;
+      tiles = mapState.StoredTiles.ToDictionary(x => new Vector3Int((int)x.Key.x, (int)x.Key.y, (int)x.Key.z), x => x.Value);
+
+      if (visibleTiles.Count > 0) 
+      {
+          visibleTiles.Clear();
+      }
+
+      // Create a dictionary to map tile names to actual TileBase objects
+      Dictionary<string, TileBase> tileDictionary = new Dictionary<string, TileBase>
+      {
+          { floorTile.name, floorTile },
+          { topWallTile.name, topWallTile },
+          { bottomWallTile.name, bottomWallTile },
+          { leftWallTile.name, leftWallTile },
+          { rightWallTile.name, rightWallTile },
+          { topLeftCornerTile.name, topLeftCornerTile },
+          { topRightCornerTile.name, topRightCornerTile },
+          { bottomLeftCornerTile.name, bottomLeftCornerTile },
+          { bottomRightCornerTile.name, bottomRightCornerTile }
+      };
+
+        // Check if the tilemaps are null or destroyed before trying to set tiles
+      if (floorMap == null || obstacleMap == null || fogMap == null) 
+      {
+          Debug.LogError("Tilemaps are missing or destroyed.");
+          return;
+      }
+
+      // Loop through each stored tile and set the correct tile on the map
+      foreach (Vector3Int pos in tiles.Keys) 
+      {
+          string tileName = tiles[pos].Name;
+          if (tileDictionary.ContainsKey(tileName)) 
+          {
+              if (tileName == floorTile.name)
+              {
+                  floorMap.SetTile(pos, tileDictionary[tileName]);
+              } 
+              else 
+              {
+                  obstacleMap.SetTile(pos, tileDictionary[tileName]);
+              }
+          }
+      }
+
+      // Re-setup the fog of war for the map after loading
+      SetupFogMap();
+  }
+}*/
+
   public void LoadState(MapState mapState) 
   {
     rooms = mapState.StoredRooms;
@@ -298,7 +376,6 @@ public class MapManager : MonoBehaviour
     {
         visibleTiles.Clear();
     }
-
     // Loop through each stored tile and set the correct tile on the map
     foreach (Vector3Int pos in tiles.Keys) 
     {
@@ -346,6 +423,30 @@ public class MapManager : MonoBehaviour
     // Re-setup the fog of war for the map after loading
     SetupFogMap();
   }
+
+   /*public void LoadState(MapState mapState) 
+   {
+    rooms = mapState.StoredRooms;
+    tiles = mapState.StoredTiles.ToDictionary(x => new Vector3Int((int)x.Key.x, (int)x.Key.y, (int)x.Key.z), x => x.Value);
+    if (visibleTiles.Count > 0) 
+    {
+      visibleTiles.Clear();
+    }
+
+    foreach (Vector3Int pos in tiles.Keys) 
+    {
+      if (tiles[pos].Name == floorTile.name) 
+      {
+        floorMap.SetTile(pos, floorTile);
+      } 
+      else if (tiles[pos].Name == wallTile.name) 
+      {
+        obstacleMap.SetTile(pos, wallTile);
+      }
+    }
+    SetupFogMap();
+  }*/
+
 }
 
 

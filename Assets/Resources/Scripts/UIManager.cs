@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class UIManager : MonoBehaviour 
 {
@@ -134,18 +135,27 @@ public class UIManager : MonoBehaviour
 
   public void Save() 
   {
+    Debug.Log("Saving Game...");
     SaveManager.instance.SaveGame();
   }
 
   public void Load() 
   {
+    Debug.Log("Loading Saved Game...");
     SaveManager.instance.LoadGame();
     ToggleMenu();
   }
 
   public void Quit() 
   {
+    Debug.Log("Closing Game...");
     Application.Quit();
+  }
+
+  public void ReturnToMainMenu()
+  {
+    Debug.Log("Returning To Main Menu...");
+    SceneManager.LoadScene("Main Menu");
   }
 
 

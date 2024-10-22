@@ -1,0 +1,1 @@
+///when i make more scrolls and spells, also make a spell book and reload system, and then with the enemy type effects

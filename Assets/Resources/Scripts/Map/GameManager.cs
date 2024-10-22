@@ -52,7 +52,8 @@ public class GameManager : MonoBehaviour
     }
   }
 
-  private void StartTurn() 
+
+  /*private void StartTurn() 
   {
     if (actors[actorNum].GetComponent<Player>()) 
     {
@@ -69,7 +70,30 @@ public class GameManager : MonoBehaviour
         Action.WaitAction();
       }
     }
+  }*/
+
+  private void StartTurn() 
+  {
+      if (actors.Count > 0 && actorNum < actors.Count) 
+      {
+          if (actors[actorNum].GetComponent<Player>()) 
+          {
+              isPlayerTurn = true;
+          } 
+          else 
+          {
+              if (actors[actorNum].AI != null) 
+              {
+                  actors[actorNum].AI.RunAI();
+              } 
+              else 
+              {
+                  Action.WaitAction();
+              }
+          }
+      }
   }
+
 
   public void EndTurn() 
   {
@@ -132,11 +156,26 @@ public class GameManager : MonoBehaviour
     delayTime = SetTime();
   }
 
-  public void RemoveActor(Actor actor) 
+  /*public void RemoveActor(Actor actor) 
   {
     actors.Remove(actor);
     delayTime = SetTime();
+  }*/
+
+  public void RemoveActor(Actor actor) 
+  {
+      int index = actors.IndexOf(actor);
+      if (index >= 0) 
+      {
+          actors.RemoveAt(index);
+          if (actorNum >= actors.Count) 
+          {
+              actorNum = 0;
+          }
+          delayTime = SetTime();
+      }
   }
+
 
   public Actor GetActorAtLocation(Vector3 location) 
   {
@@ -172,7 +211,7 @@ public class GameManager : MonoBehaviour
     return gameState;
   }
 
-  public void LoadState(GameState state) 
+  /*public void LoadState(GameState state) 
   {
     isPlayerTurn = false; //Prevents player from moving during load
     if (entities.Count > 0) 
@@ -187,36 +226,72 @@ public class GameManager : MonoBehaviour
     }
 
     StartCoroutine(LoadEntityStates(state.Entities));
+  }*/
+
+  public void LoadState(GameState state) 
+  {
+      isPlayerTurn = false; // Prevents player from moving during load
+
+      // Safely destroy entities if they are not null
+      if (entities.Count > 0) 
+      {
+          foreach (Entity entity in entities) 
+          {
+              if (entity != null) 
+              {
+                  Destroy(entity.gameObject);
+              }
+          }
+
+          entities.Clear();
+          actors.Clear();
+      }
+
+      StartCoroutine(LoadEntityStates(state.Entities));
   }
+
 
   private IEnumerator LoadEntityStates(List<EntityState> entityStates) 
   {
-    int entityState = 0;
-    while (entityState < entityStates.Count) 
-    {
-      yield return new WaitForEndOfFrame();
-      string entityName = entityStates[entityState].Name.Contains("Remains of") ?
-      entityStates[entityState].Name.Substring(entityStates[entityState].Name.LastIndexOf(' ') + 1) : entityStates[entityState].Name;
-
-      if (entityStates[entityState].Type == EntityState.EntityType.Actor) 
+      int entityStateIndex = 0;
+      while (entityStateIndex < entityStates.Count) 
       {
-        ActorState actorState = entityStates[entityState] as ActorState;
-        Actor actor = MapManager.instance.CreateEntity(entityName, actorState.Position).GetComponent<Actor>();
+          yield return new WaitForEndOfFrame();
+          
+          EntityState entityState = entityStates[entityStateIndex];
+          string entityName = entityState.Name.Contains("Remains of") ? 
+              entityState.Name.Substring(entityState.Name.LastIndexOf(' ') + 1) : entityState.Name;
 
-        actor.LoadState(actorState);
-      } 
-      else if (entityStates[entityState].Type == EntityState.EntityType.Item) 
-      {
-        ItemState itemState = entityStates[entityState] as ItemState;
-        Item item = MapManager.instance.CreateEntity(entityName, itemState.Position).GetComponent<Item>();
+          try 
+          {
+              if (entityState.Type == EntityState.EntityType.Actor) 
+              {
+                  ActorState actorState = entityState as ActorState;
+                  Actor actor = MapManager.instance.CreateEntity(entityName, actorState.Position)
+                      .GetComponent<Actor>();
 
-        item.LoadState(itemState);
+                  actor.LoadState(actorState);
+              } 
+              else if (entityState.Type == EntityState.EntityType.Item) 
+              {
+                  ItemState itemState = entityState as ItemState;
+                  Item item = MapManager.instance.CreateEntity(entityName, itemState.Position)
+                      .GetComponent<Item>();
+
+                  item.LoadState(itemState);
+              }
+          } 
+          catch (System.Exception ex) 
+          {
+              Debug.LogError($"Error loading entity: {entityName}, Exception: {ex.Message}");
+          }
+
+          entityStateIndex++;
       }
 
-      entityState++;
-    }
-    isPlayerTurn = true; //Allows player to move after load
+      isPlayerTurn = true; // Allows player to move after load
   }
+
 }
 
 [System.Serializable]
