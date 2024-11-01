@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
   public static UIManager instance;
   [SerializeField] private EventSystem eventSystem;
   [SerializeField] private bool isMenuOpen = false; //Read-only
+  [SerializeField] private TextMeshProUGUI dungeonFloorText;
 
   [Header("Health UI")]
   [SerializeField] private Slider hpSlider;
@@ -32,15 +33,25 @@ public class UIManager : MonoBehaviour
   [SerializeField] private GameObject dropMenu;
   [SerializeField] private GameObject dropMenuContent;
 
-   [Header("Escape Menu UI")]
+  [Header("Escape Menu UI")]
   [SerializeField] private bool isEscapeMenuOpen = false; //Read-only
   [SerializeField] private GameObject escapeMenu;
+
+  [Header("Character Information Menu UI")]
+  [SerializeField] private bool isCharacterInformationMenuOpen = false; //Read-only
+  [SerializeField] private GameObject characterInformationMenu;
+
+  [Header("Level Up Menu UI")]
+  [SerializeField] private bool isLevelUpMenuOpen = false; //Read-only
+  [SerializeField] private GameObject levelUpMenu;
+  [SerializeField] private GameObject levelUpMenuContent;
 
   public bool IsMenuOpen { get => isMenuOpen; }
   public bool IsMessageHistoryOpen { get => isMessageHistoryOpen; }
   public bool IsInventoryOpen { get => isInventoryOpen; }
   public bool IsDropMenuOpen { get => isDropMenuOpen; }
   public bool IsEscapeMenuOpen { get => isEscapeMenuOpen; }
+  public bool IsCharacterInformationMenuOpen { get => isCharacterInformationMenuOpen; }
 
   private void Awake() 
   {
@@ -54,7 +65,19 @@ public class UIManager : MonoBehaviour
     }
   }
 
-  private void Start() => AddMessage("Hello and welcome, adventurer, to yet another dungeon!", "#0da2ff"); //Light blue
+  private void Start() 
+  {
+    SetDungeonFloorText(SaveManager.instance.CurrentFloor);
+
+    if (SaveManager.instance.Save.SavedFloor is 0) 
+    {
+      AddMessage("Hello and Welcome, Mage, to your inevitable demise!", "#0da2ff"); //Light blue
+    } 
+    else 
+    {
+      AddMessage("Welcome back, Mage!", "#0da2ff"); //Light blue
+    }
+  }
 
   public void SetHealthMax(int maxHp) 
   {
@@ -67,10 +90,14 @@ public class UIManager : MonoBehaviour
     hpSliderText.text = $"HP: {hp}/{maxHp}";
   }
 
-   public void ToggleMenu() 
-   { //swapped to a switch case *mo cases*-
-    if (isMenuOpen) 
-    {
+  public void SetDungeonFloorText(int floor) 
+  {
+    dungeonFloorText.text = $"Dungeon floor: {floor}";
+  }
+
+  public void ToggleMenu() 
+  {
+    if (isMenuOpen) {
       isMenuOpen = !isMenuOpen;
 
       switch (true) 
@@ -87,24 +114,24 @@ public class UIManager : MonoBehaviour
         case bool _ when isEscapeMenuOpen:
           ToggleEscapeMenu();
           break;
+        case bool _ when isCharacterInformationMenuOpen:
+          ToggleCharacterInformationMenu();
+          break;
         default:
           break;
       }
     }
   }
 
-  public void ToggleMessageHistory() 
-  {
-    messageHistory.SetActive(!messageHistory.activeSelf);
-    isMenuOpen = messageHistory.activeSelf;
-    isMessageHistoryOpen = messageHistory.activeSelf;
+  public void ToggleMessageHistory() {
+    isMessageHistoryOpen = !isMessageHistoryOpen;
+    SetBooleans(messageHistory, isMessageHistoryOpen);
   }
 
   public void ToggleInventory(Actor actor = null) 
   {
-    inventory.SetActive(!inventory.activeSelf);
-    isMenuOpen = inventory.activeSelf;
-    isInventoryOpen = inventory.activeSelf;
+    isInventoryOpen = !isInventoryOpen;
+    SetBooleans(inventory, isInventoryOpen);
 
     if (isMenuOpen) 
     {
@@ -114,9 +141,8 @@ public class UIManager : MonoBehaviour
 
   public void ToggleDropMenu(Actor actor = null) 
   {
-    dropMenu.SetActive(!dropMenu.activeSelf);
-    isMenuOpen = dropMenu.activeSelf;
-    isDropMenuOpen = dropMenu.activeSelf;
+    isDropMenuOpen = !isDropMenuOpen;
+    SetBooleans(dropMenu, isDropMenuOpen);
 
     if (isMenuOpen) 
     {
@@ -124,40 +150,104 @@ public class UIManager : MonoBehaviour
     }
   }
 
-   public void ToggleEscapeMenu() 
-   {
-    escapeMenu.SetActive(!escapeMenu.activeSelf);
-    isMenuOpen = escapeMenu.activeSelf;
-    isEscapeMenuOpen = escapeMenu.activeSelf;
+  public void ToggleEscapeMenu() 
+  {
+    isEscapeMenuOpen = !isEscapeMenuOpen;
+    SetBooleans(escapeMenu, isEscapeMenuOpen);
 
     eventSystem.SetSelectedGameObject(escapeMenu.transform.GetChild(0).gameObject);
   }
 
+  public void ToggleLevelUpMenu(Actor actor) 
+  {
+    isLevelUpMenuOpen = !isLevelUpMenuOpen;
+    SetBooleans(levelUpMenu, isLevelUpMenuOpen);
+
+    GameObject constitutionButton = levelUpMenuContent.transform.GetChild(0).gameObject;
+    GameObject strengthButton = levelUpMenuContent.transform.GetChild(1).gameObject;
+    GameObject agilityButton = levelUpMenuContent.transform.GetChild(2).gameObject;
+
+    constitutionButton.GetComponent<TextMeshProUGUI>().text = $"a) Constitution (+20 HP, from {actor.GetComponent<Fighter>().MaxHp})";
+    strengthButton.GetComponent<TextMeshProUGUI>().text = $"b) Strength (+1 attack, from {actor.GetComponent<Fighter>().Power})";
+    agilityButton.GetComponent<TextMeshProUGUI>().text = $"c) Agility (+1 defense, from {actor.GetComponent<Fighter>().Defense})";
+
+    foreach (Transform child in levelUpMenuContent.transform) 
+    {
+      child.GetComponent<Button>().onClick.RemoveAllListeners();
+
+      child.GetComponent<Button>().onClick.AddListener(() => 
+      {
+        if (constitutionButton == child.gameObject) 
+        {
+          actor.GetComponent<Level>().IncreaseMaxHp();
+        } 
+        else if (strengthButton == child.gameObject) 
+        {
+          actor.GetComponent<Level>().IncreasePower();
+        } 
+        else if (agilityButton == child.gameObject) 
+        {
+          actor.GetComponent<Level>().IncreaseDefense();
+        } 
+        else 
+        {
+          Debug.LogError("No button found!");
+        }
+        ToggleLevelUpMenu(actor);
+      });
+    }
+
+    eventSystem.SetSelectedGameObject(levelUpMenuContent.transform.GetChild(0).gameObject);
+  }
+
+  public void ToggleCharacterInformationMenu(Actor actor = null) 
+  {
+    isCharacterInformationMenuOpen = !isCharacterInformationMenuOpen;
+    SetBooleans(characterInformationMenu, isCharacterInformationMenuOpen);
+
+    if (actor is not null) 
+    {
+      characterInformationMenu.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = $"Level: {actor.GetComponent<Level>().CurrentLevel}";
+      characterInformationMenu.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = $"XP: {actor.GetComponent<Level>().CurrentXp}";
+      characterInformationMenu.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = $"XP for next level: {actor.GetComponent<Level>().XpToNextLevel}";
+      characterInformationMenu.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = $"Attack: {actor.GetComponent<Fighter>().Power}";
+      characterInformationMenu.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = $"Defense: {actor.GetComponent<Fighter>().Defense}";
+    }
+  }
+
+  private void SetBooleans(GameObject menu, bool menuBool) 
+  {
+    isMenuOpen = menuBool;
+    menu.SetActive(menuBool);
+  }
+
   public void Save() 
   {
-    Debug.Log("Saving Game...");
-    SaveManager.instance.SaveGame();
+    SaveManager.instance.SaveGame(false);
+    AddMessage("The world stops for a moment as you save your progress...", "#0da2ff"); //Light blue
   }
 
   public void Load() 
   {
-    Debug.Log("Loading Saved Game...");
     SaveManager.instance.LoadGame();
+    AddMessage("You go back in time, this place feels familiar...", "#0da2ff"); //Light blue
     ToggleMenu();
   }
 
   public void Quit() 
   {
-    Debug.Log("Closing Game...");
     Application.Quit();
   }
 
   public void ReturnToMainMenu()
   {
-    Debug.Log("Returning To Main Menu...");
     SceneManager.LoadScene("Main Menu");
   }
 
+  public void Tutorial()
+  {
+    SceneManager.LoadScene("Tutorial");
+  }
 
   public void AddMessage(string newMessage, string colorHex) 
   {
@@ -231,7 +321,8 @@ public class UIManager : MonoBehaviour
         if (menuContent == inventoryContent) 
         {
           Action.UseAction(actor, item);
-        } else if (menuContent == dropMenuContent) 
+        } 
+        else if (menuContent == dropMenuContent) 
         {
           Action.DropAction(actor, item);
         }

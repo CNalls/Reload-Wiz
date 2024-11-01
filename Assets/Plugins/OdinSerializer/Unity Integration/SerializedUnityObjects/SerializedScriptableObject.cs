@@ -40,6 +40,7 @@ namespace OdinSerializer
             this.OnAfterDeserialize();
         }
 
+        [System.Obsolete]
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
             if (this.SafeIsUnityNull()) return;

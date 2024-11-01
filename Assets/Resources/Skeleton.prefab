@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4695474814884061864}
   - component: {fileID: 1030039058596025657}
   - component: {fileID: -9171990710118991260}
+  - component: {fileID: -8860274713574298163}
   m_Layer: 0
   m_Name: Skeleton
   m_TagString: Player
@@ -75,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -2028207969
-  m_SortingLayer: 3
+  m_SortingLayer: 1
   m_SortingOrder: 2
   m_Sprite: {fileID: 1402164387, guid: 7f7c9f6eac335364cb32ff3e5abc4639, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -106,6 +107,8 @@ MonoBehaviour:
   fieldOfView: []
   inventory: {fileID: 0}
   aI: {fileID: -9171990710118991260}
+  fighter: {fileID: 4695474814884061864}
+  level: {fileID: -8860274713574298163}
 --- !u!114 &4695474814884061864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,3 +153,21 @@ MonoBehaviour:
   aStar: {fileID: 1030039058596025657}
   fighter: {fileID: 4695474814884061864}
   isFighting: 0
+--- !u!114 &-8860274713574298163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2532274915030152523}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3291f2e7e92dac547805e3016f6564c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentLevel: 1
+  currentXp: 0
+  xpToNextLevel: 350
+  levelUpBase: 200
+  levelUpFactor: 150
+  xpGiven: 45

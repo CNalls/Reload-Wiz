@@ -33,6 +33,8 @@ namespace OdinSerializer
     using System.Runtime.CompilerServices;
     using UnityEngine.Assertions;
     using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using UnityEditor;
 
 #if PREFAB_DEBUG && !SIRENIX_INTERNAL
 #warning "Prefab serialization debugging is enabled outside of Sirenix internal. Are you sure this is right?"
@@ -576,6 +578,8 @@ namespace OdinSerializer
         /// <summary>
         /// Not yet documented.
         /// </summary>
+        [Obsolete]
+
         public static void SerializeUnityObject(UnityEngine.Object unityObject, ref SerializationData data, bool serializeUnityFields = false, SerializationContext context = null)
         {
             if (unityObject == null)
@@ -806,8 +810,7 @@ namespace OdinSerializer
                             SetUnityObjectModifications(unityObject, ref data, prefab);
                         }
 
-                        // Now we determine the Unity object references to keep if this prefab instance is ever applied
-                        if (data.Prefab != null) // It can still be "fake null", in which case, never mind
+                       if (data.Prefab != null) // Check if the prefab is valid
                         {
                             PrefabDeserializeUtility.CleanSceneObjectToKeepOnApply();
 
@@ -818,21 +821,21 @@ namespace OdinSerializer
 
                                 if (data.PrefabModificationsReferencedUnityObjects != null && data.PrefabModificationsReferencedUnityObjects.Count > 0)
                                 {
-                                    //var prefabRoot = UnityEditor.PrefabUtility.FindPrefabRoot(((Component)data.Prefab).gameObject);
-                                    var instanceRoot = UnityEditor.PrefabUtility.FindPrefabRoot(((Component)unityObject).gameObject);
+                                    // Use GetOutermostPrefabInstanceRoot to get the instance root if it's a prefab instance
+                                    var instanceRoot = PrefabUtility.IsPartOfPrefabInstance((Component)unityObject)
+                                        ? PrefabUtility.GetOutermostPrefabInstanceRoot(((Component)unityObject).gameObject)
+                                        : ((Component)unityObject).transform.root.gameObject;
 
                                     foreach (var reference in data.PrefabModificationsReferencedUnityObjects)
                                     {
                                         if (reference == null) continue;
                                         if (!(reference is GameObject || reference is Component)) continue;
-                                        if (UnityEditor.AssetDatabase.Contains(reference)) continue;
+                                        if (AssetDatabase.Contains(reference)) continue;
 
-                                        var referencePrefabType = UnityEditor.PrefabUtility.GetPrefabType(reference);
+                                        var referenceInstanceStatus = PrefabUtility.GetPrefabInstanceStatus(reference);
 
-                                        bool mightBeInPrefab = referencePrefabType == UnityEditor.PrefabType.Prefab
-                                                            || referencePrefabType == UnityEditor.PrefabType.PrefabInstance
-                                                            || referencePrefabType == UnityEditor.PrefabType.ModelPrefab
-                                                            || referencePrefabType == UnityEditor.PrefabType.ModelPrefabInstance;
+                                        bool mightBeInPrefab = referenceInstanceStatus == PrefabInstanceStatus.Connected
+                                                            || referenceInstanceStatus == PrefabInstanceStatus.Disconnected;
 
                                         if (!mightBeInPrefab)
                                         {
@@ -851,8 +854,10 @@ namespace OdinSerializer
                                             continue;
                                         }
 
-                                        var gameObject = (GameObject)(reference is GameObject ? reference : (reference as Component).gameObject);
-                                        var referenceRoot = UnityEditor.PrefabUtility.FindPrefabRoot(gameObject);
+                                        var gameObject = reference is GameObject ? (GameObject)reference : ((Component)reference).gameObject;
+                                        var referenceRoot = PrefabUtility.IsPartOfPrefabInstance(gameObject)
+                                            ? PrefabUtility.GetOutermostPrefabInstanceRoot(gameObject)
+                                            : gameObject.transform.root.gameObject;
 
                                         if (referenceRoot != instanceRoot)
                                         {
@@ -2571,6 +2576,7 @@ namespace OdinSerializer
             private static readonly object LOCK = new object();
             private static readonly HashSet<UnityEngine.Object> selectedPrefabObjects;
 
+            [Obsolete]
             static PrefabSelectionTracker()
             {
                 selectedPrefabObjects = new HashSet<UnityEngine.Object>(ReferenceEqualityComparer<UnityEngine.Object>.Default);
@@ -2610,6 +2616,7 @@ namespace OdinSerializer
                 //return false;
             }
 
+            [Obsolete]
             private static void OnSelectionChanged()
             {
                 lock (LOCK)

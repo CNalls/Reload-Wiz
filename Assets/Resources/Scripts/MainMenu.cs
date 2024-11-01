@@ -37,6 +37,11 @@ public class MainMenu : MonoBehaviour
     SaveManager.instance.LoadGame();
   }
 
+  public void Tutorial()
+  {
+    SceneManager.LoadScene("Tutorial");
+  }
+
   public void QuitGame() 
   {
     Application.Quit();

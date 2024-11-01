@@ -1,68 +1,57 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class RectangularRoom
+public class RectangularRoom 
 {
-    [SerializeField] private int x, y, width, height;
+  [SerializeField] private int x, y, width, height, id;
+  public int X { get => x; set => x = value; }
+  public int Y { get => y; set => y = value; }
+  public int Width { get => width; set => width = value; }
+  public int Height { get => height; set => height = value; }
+  public int ID { get => id; set => id = value; }
 
-    public int X { get => x; } 
-    public int Y { get => y; }
-    public int Width { get => width; }
-    public int Height { get => height; }
+  public RectangularRoom(int x, int y, int width, int height, int id) 
+  {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.id = id;
+  }
 
-    public RectangularRoom(int x, int y, int width, int height, int count)
+  /// <summary>
+  ///  Return the center of the room
+  /// </summary>
+  public Vector2Int Center() => new Vector2Int(x + width / 2, y + height / 2);
+
+  /// <summary>
+  /// Return a random inner position inside the room
+  /// </summary>
+  public Vector2Int RandomPoint() => new Vector2Int(Random.Range(x + 1, x + width - 1), Random.Range(y + 1, y + height - 1));
+
+  /// <summary>
+  ///  Return the area of this room as a Bounds.
+  /// </summary>
+  public Bounds GetBounds() => new Bounds(new Vector3(x, y, 0), new Vector3(width, height, 0));
+
+  /// <summary>
+  /// Return the area of this room as BoundsInt
+  /// </summary>
+  public BoundsInt GetBoundsInt() => new BoundsInt(new Vector3Int(x, y, 0), new Vector3Int(width, height, 0));
+
+  /// <summary>
+  /// Return True if this room overlaps with another RectangularRoom.
+  /// </summary>
+  public bool Overlaps(List<RectangularRoom> otherRooms) 
+  {
+    foreach (RectangularRoom otherRoom in otherRooms) 
     {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+      if (GetBounds().Intersects(otherRoom.GetBounds())) 
+      {
+        return true;
+      }
     }
-
-    // X1, Y1 are the top-left corner, X2, Y2 are the bottom-right corner
-    public int X1 => X;
-    public int Y1 => Y;
-    public int X2 => X + Width;
-    public int Y2 => Y + Height;
-
-    // Get a random valid position within the room (avoiding the walls)
-    public Vector2 RandomPosition()
-    {
-        int randomX = Random.Range(X1 + 1, X2 - 1); // Inside room, avoiding walls
-        int randomY = Random.Range(Y1 + 1, Y2 - 1); // Inside room, avoiding walls
-        return new Vector2(randomX, randomY);
-    }
-
-    public Vector2Int Center() => new Vector2Int(x + width / 2, y + height / 2); //returns center most points of the room
-
-    /// <summary>
-    /// Return the area of this room as a Bounds
-    /// <summary>
-    public Bounds GetBounds() => new Bounds(new Vector3(x, y, 0), new Vector3(width, height, 0));
-
-    /// <summary>
-    /// Return the area of this room as a BoundsInt
-    /// <summary>
-
-    public BoundsInt GetBoundsInt() => new BoundsInt(new Vector3Int(x, y, 0), new Vector3Int(width, height, 0));
-
-    public bool Overlaps(List<RectangularRoom> otherRooms)
-    {
-        foreach (RectangularRoom otherRoom in otherRooms)
-        {
-            if (GetBounds().Intersects(otherRoom.GetBounds()))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // method to check if a point is inside the room
-    public bool Contains(int x, int y)
-    {
-        return x >= X1 && x <= X2 && y >= Y1 && y <= Y2;
-    }
-
+    return false;
+  }
 }

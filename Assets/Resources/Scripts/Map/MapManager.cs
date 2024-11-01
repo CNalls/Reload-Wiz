@@ -15,8 +15,8 @@ public class MapManager : MonoBehaviour
     [SerializeField] private int roomMaxSize = 10;
     [SerializeField] private int roomMinSize = 6;
     [SerializeField] private int maxRooms = 30;
-    [SerializeField] private int maxMonstersPerRoom = 2;
-    [SerializeField] private int maxItemsPerRoom = 2;
+    //[SerializeField] private int maxMonstersPerRoom = 2;
+    //[SerializeField] private int maxItemsPerRoom = 2;
     //[SerializeField] private int maxChestsPerRoom = 2;
     //[SerializeField] private int maxTorchesPerRoom = 2;
 
@@ -36,6 +36,9 @@ public class MapManager : MonoBehaviour
     [SerializeField] private TileBase bottomLeftCornerTile;
     [SerializeField] private TileBase bottomRightCornerTile;
     [SerializeField] private TileBase fogTile;
+    [SerializeField] private TileBase gateTile;
+    [SerializeField] private TileBase upStairsTile;
+    [SerializeField] private TileBase downStairsTile;
 
     [Header("Tilemaps:")]
     [SerializeField] private Tilemap floorMap;
@@ -61,6 +64,9 @@ public class MapManager : MonoBehaviour
     public TileBase TopRightCornerTile { get => topRightCornerTile;}
     public TileBase BottomLeftCornerTile { get => bottomLeftCornerTile;}
     public TileBase BottomRightCornerTile { get => bottomRightCornerTile;}
+    public TileBase GateTile { get => gateTile;}
+    public TileBase UpStairsTile { get => upStairsTile;}
+    public TileBase DownStairsTile { get => downStairsTile;}
     public Tilemap FloorMap { get => floorMap; }
     public Tilemap ObstacleMap { get => obstacleMap; }
     public Tilemap FogMap { get => fogMap; }
@@ -112,7 +118,7 @@ public class MapManager : MonoBehaviour
       else 
       {
           // Handle when there is no saved scene state
-          GenerateDungeon();
+          GenerateDungeon(true);
       }
   }
 
@@ -141,18 +147,29 @@ public class MapManager : MonoBehaviour
         }
     }*/
 
-    public void GenerateDungeon() 
-  {
-    rooms = new List<RectangularRoom>();
-    tiles = new Dictionary<Vector3Int, TileData>();
-    visibleTiles = new List<Vector3Int>();
+    public void GenerateDungeon(bool isNewGame = false) 
+    {
+    if (floorMap.cellBounds.size.x > 0) 
+    {
+      Reset();
+    } 
+    else 
+    {
+      rooms = new List<RectangularRoom>();
+      tiles = new Dictionary<Vector3Int, TileData>();
+      visibleTiles = new List<Vector3Int>();
+    }
 
     ProcGen procGen = new ProcGen();
-    procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, maxMonstersPerRoom, maxItemsPerRoom, rooms);
+    procGen.GenerateDungeon(width, height, roomMaxSize, roomMinSize, maxRooms, rooms, isNewGame);
 
     AddTileMapToDictionary(floorMap);
     AddTileMapToDictionary(obstacleMap);
     SetupFogMap();
+
+    if (!isNewGame) {
+      GameManager.instance.RefreshPlayer();
+    }
   }
 
   ///<summary>Return True if x and y are inside of the bounds of this map. </summary>
@@ -311,6 +328,18 @@ public class MapManager : MonoBehaviour
     }
   }
 
+   private void Reset() 
+   {
+    rooms.Clear();
+    tiles.Clear();
+    visibleTiles.Clear();
+    nodes.Clear();
+
+    floorMap.ClearAllTiles();
+    obstacleMap.ClearAllTiles();
+    fogMap.ClearAllTiles();
+  }
+
   public MapState SaveState() => new MapState(tiles, rooms);
 
   
@@ -369,6 +398,11 @@ public class MapManager : MonoBehaviour
 
   public void LoadState(MapState mapState) 
   {
+    if (floorMap.cellBounds.size.x >0)
+    {
+      Reset();
+    }
+
     rooms = mapState.StoredRooms;
     tiles = mapState.StoredTiles.ToDictionary(x => new Vector3Int((int)x.Key.x, (int)x.Key.y, (int)x.Key.z), x => x.Value);
     
@@ -417,6 +451,14 @@ public class MapManager : MonoBehaviour
         else if (tiles[pos].Name == bottomRightCornerTile.name) 
         {
             obstacleMap.SetTile(pos, bottomRightCornerTile);
+        }
+        else if (tiles[pos].Name == upStairsTile.name) 
+        {
+          floorMap.SetTile(pos, upStairsTile);
+        } 
+        else if (tiles[pos].Name == downStairsTile.name) 
+        {
+          floorMap.SetTile(pos, downStairsTile);
         }
     }
 
