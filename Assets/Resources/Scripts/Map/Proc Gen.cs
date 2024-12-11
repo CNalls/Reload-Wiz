@@ -33,8 +33,8 @@ sealed class ProcGen
     {
     new Tuple<int, string, int>(0, "Potion of Health", 50),
     new Tuple<int, string, int>(1, "Confusion Scroll", 45),
-    new Tuple<int, string, int>(3, "Lightning Scroll", 25),
-    new Tuple<int, string, int>(3, "Fireball Scroll", 35),
+    new Tuple<int, string, int>(3, "Lightning Scroll", 25), new Tuple<int, string, int>(4,"Sword", 5),
+    new Tuple<int, string, int>(3, "Fireball Scroll", 35),  new Tuple<int, string, int>(6, "ChainMail",15),
     };
 
     private List<Tuple<int, string, int>> monsterChances = new List<Tuple<int, string, int>> 
@@ -204,7 +204,18 @@ sealed class ProcGen
         } 
         else 
         {
-        MapManager.instance.CreateEntity("Player", (Vector2Int)playerPos);
+            GameObject player = MapManager.instance.CreateEntity("Player", (Vector2Int)playerPos);
+
+            Actor playerActor = player.GetComponent<Actor>();
+
+            Item starterWeapon = MapManager.instance.CreateEntity("Dagger", (Vector2Int)playerPos).GetComponent<Item>();
+            Item starterArmor = MapManager.instance.CreateEntity("LeatherArmor", (Vector2Int)playerPos).GetComponent<Item>();
+
+            playerActor.Inventory.Add(starterWeapon);
+            playerActor.Inventory.Add(starterArmor);
+
+            playerActor.Equipment.EquipToSlot("Weapon", starterWeapon, false);
+            playerActor.Equipment.EquipToSlot("Armor", starterArmor, false);
         }
     }
 

@@ -46,6 +46,11 @@ public class UIManager : MonoBehaviour
   [SerializeField] private GameObject levelUpMenu;
   [SerializeField] private GameObject levelUpMenuContent;
 
+  [Header("Level Up Menu UI")]
+  [SerializeField] public GameObject lootMenu;
+  [SerializeField] public Text lootText;
+  //[SerializeField] private LootChest currentChest;
+
   public bool IsMenuOpen { get => isMenuOpen; }
   public bool IsMessageHistoryOpen { get => isMessageHistoryOpen; }
   public bool IsInventoryOpen { get => isInventoryOpen; }
@@ -123,7 +128,8 @@ public class UIManager : MonoBehaviour
     }
   }
 
-  public void ToggleMessageHistory() {
+  public void ToggleMessageHistory()  
+  {
     isMessageHistoryOpen = !isMessageHistoryOpen;
     SetBooleans(messageHistory, isMessageHistoryOpen);
   }
@@ -168,8 +174,8 @@ public class UIManager : MonoBehaviour
     GameObject agilityButton = levelUpMenuContent.transform.GetChild(2).gameObject;
 
     constitutionButton.GetComponent<TextMeshProUGUI>().text = $"a) Constitution (+20 HP, from {actor.GetComponent<Fighter>().MaxHp})";
-    strengthButton.GetComponent<TextMeshProUGUI>().text = $"b) Strength (+1 attack, from {actor.GetComponent<Fighter>().Power})";
-    agilityButton.GetComponent<TextMeshProUGUI>().text = $"c) Agility (+1 defense, from {actor.GetComponent<Fighter>().Defense})";
+    strengthButton.GetComponent<TextMeshProUGUI>().text = $"b) Strength (+1 attack, from {actor.GetComponent<Fighter>().Power()})";
+    agilityButton.GetComponent<TextMeshProUGUI>().text = $"c) Agility (+1 defense, from {actor.GetComponent<Fighter>().Defense()})";
 
     foreach (Transform child in levelUpMenuContent.transform) 
     {
@@ -210,8 +216,8 @@ public class UIManager : MonoBehaviour
       characterInformationMenu.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = $"Level: {actor.GetComponent<Level>().CurrentLevel}";
       characterInformationMenu.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = $"XP: {actor.GetComponent<Level>().CurrentXp}";
       characterInformationMenu.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = $"XP for next level: {actor.GetComponent<Level>().XpToNextLevel}";
-      characterInformationMenu.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = $"Attack: {actor.GetComponent<Fighter>().Power}";
-      characterInformationMenu.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = $"Defense: {actor.GetComponent<Fighter>().Defense}";
+      characterInformationMenu.transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = $"Attack: {actor.GetComponent<Fighter>().Power()}";
+      characterInformationMenu.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = $"Defense: {actor.GetComponent<Fighter>().Defense()}";
     }
   }
 
@@ -247,6 +253,11 @@ public class UIManager : MonoBehaviour
   public void Tutorial()
   {
     SceneManager.LoadScene("Tutorial");
+  }
+
+  public void Beastiary()
+  {
+    SceneManager.LoadScene("Beastiary");
   }
 
   public void AddMessage(string newMessage, string colorHex) 
@@ -298,6 +309,44 @@ public class UIManager : MonoBehaviour
       return Color.white;
     }
   }
+    /*public void OpenLootMenu(LootChest chest) 
+    {
+        currentChest = chest;
+        lootMenu.SetActive(true);
+
+        string lootDisplay = "Loot:\n";
+        foreach (var item in chest.LootItems) 
+        {
+            lootDisplay += item.Name + "\n";
+        }
+        lootText.text = lootDisplay;
+    }
+
+    public void CloseLootMenu() 
+    {
+        lootMenu.SetActive(false);
+        currentChest = null;
+    }
+
+    public void CollectLoot() 
+    {
+        if (currentChest != null) 
+        {
+            Inventory playerInventory = GameManager.instance.player.GetComponent<Inventory>();
+            foreach (var item in currentChest.LootItems) 
+            {
+                playerInventory.AddItem(item);
+            }
+            currentChest.ClearLoot();
+            CloseLootMenu();
+        }
+    }
+
+    public void LeaveLoot() 
+    {
+        CloseLootMenu();
+    }
+*/
 
   private void UpdateMenu(Actor actor, GameObject menuContent) 
   {
@@ -320,7 +369,14 @@ public class UIManager : MonoBehaviour
       {
         if (menuContent == inventoryContent) 
         {
-          Action.UseAction(actor, item);
+          if (item.Consumable is not null) 
+          {
+            Action.UseAction(actor, item);
+          } 
+          else if (item.Equippable is not null) 
+          {
+            Action.EquipAction(actor, item);
+          }
         } 
         else if (menuContent == dropMenuContent) 
         {

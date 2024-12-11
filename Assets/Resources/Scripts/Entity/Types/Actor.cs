@@ -7,18 +7,50 @@ public class Actor : Entity
   [SerializeField] private int fieldOfViewRange = 8;
   [SerializeField] private List<Vector3Int> fieldOfView = new List<Vector3Int>();
   [SerializeField] private Inventory inventory;
+  [SerializeField] private Equipment equipment;
   [SerializeField] private AI aI;
   [SerializeField] private Fighter fighter;
   [SerializeField] private Level level;
+  //[SerializeField] private float maxATB = 100f;
+  //[SerializeField] private float speed = 1f; // Actor's speed determines how quickly ATB fills
+   // private float currentATB = 0f;
   AdamMilVisibility algorithm;
 
   public bool IsAlive { get => isAlive; set => isAlive = value; }
   public List<Vector3Int> FieldOfView { get => fieldOfView; }
   public Inventory Inventory { get => inventory; }
+  public Equipment Equipment { get => equipment; }
   public AI AI { get => aI; set => aI = value; }
   public Fighter Fighter { get => fighter; set => fighter = value; }
   public Level Level { get => level; set => level = value; }
+  public bool HasActed { get; set; }
 
+  /*//ATB TEST
+   public bool IsReadyToAct() => currentATB >= maxATB;
+
+    public void IncrementATB()
+    {
+        currentATB += speed * Time.deltaTime;
+    }
+
+    public void ResetATB()
+    {
+        currentATB = 0f;
+    }
+
+    public void PerformAction()
+  {
+    if (IsAlive)
+    {
+        // Implement your action logic here (e.g., attacking, defending, using an item)
+        Debug.Log($"{gameObject.name} performs an action!");
+
+        // Set HasActed to true to mark that this actor has taken their action
+        HasActed = true;
+    }
+  }
+
+//ATB TEST*/
   private void OnValidate() 
   {
     if (GetComponent<Inventory>()) 
@@ -39,6 +71,11 @@ public class Actor : Entity
     if (GetComponent<Level>()) 
     {
       level = GetComponent<Level>();
+    }
+
+    if (GetComponent<Equipment>()) 
+    {
+      equipment = GetComponent<Equipment>();
     }
   }
 

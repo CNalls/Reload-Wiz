@@ -1,10 +1,17 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Actor))]
 public class Fighter : MonoBehaviour 
 {
-  [SerializeField] private int maxHp, hp, defense, power;
+  [SerializeField] private int maxHp, hp, baseDefense, basePower;
   [SerializeField] private Actor target;
+  //[SerializeField] private EnemyType enemyType;
+  //[SerializeField] private GameObject chestPrefab;        // Reference to the chest prefab
+  //[SerializeField] private Canvas lootMenuCanvas;         // Reference to the loot menu canvas
+  //[SerializeField] private TMPro.TextMeshProUGUI lootText; // Text component for displaying loot
+  //[SerializeField] private Button exitButton;             // Button for closing the loot menu
+
 
   public int Hp 
   {
@@ -22,10 +29,51 @@ public class Fighter : MonoBehaviour
     }
   }
 
-  public int MaxHp { get => maxHp; set => maxHp = value; }
-  public int Defense { get => defense; set => defense = value; }
-  public int Power { get => power; set => power = value; }
+  public int MaxHp
+  {
+    get => maxHp; set
+    {
+      maxHp = value;
+      if (GetComponent<Player>())
+      {
+        UIManager.instance.SetHealthMax(maxHp);
+      }
+    }
+  }
+  public int BaseDefense { get => baseDefense; set => baseDefense = value; }
+  public int BasePower { get => basePower; set => basePower = value; }
   public Actor Target { get => target; set => target = value; }
+
+
+   public int Power() 
+   {
+    return basePower + PowerBonus();
+   }
+
+  public int Defense() 
+  {
+    return baseDefense + DefenseBonus();
+  }
+
+  public int DefenseBonus() 
+  {
+    if (GetComponent<Equipment>() is not null) 
+    {
+      return GetComponent<Equipment>().DefenseBonus();
+    }
+
+    return 0;
+  }
+
+  public int PowerBonus() 
+  {
+    if (GetComponent<Equipment>() is not null) 
+    {
+      return GetComponent<Equipment>().PowerBonus();
+    }
+
+    return 0;
+  }
 
   private void Start() 
   {
@@ -43,7 +91,9 @@ public class Fighter : MonoBehaviour
       if (GetComponent<Player>()) 
       {
         UIManager.instance.AddMessage("You died!", "#ff0000"); //Red
-      } else {
+      } 
+      else 
+      {
         GameManager.instance.Actors[0].GetComponent<Level>().AddExperience(GetComponent<Level>().XPGiven); //Give XP to player
         UIManager.instance.AddMessage($"{name} is dead!", "#ffa500"); //Light Orange
       }
@@ -51,7 +101,7 @@ public class Fighter : MonoBehaviour
     }
 
     SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
-    spriteRenderer.sprite = GameManager.instance.DeadSprite;
+    spriteRenderer.sprite = GameManager.instance.DeadSprite;// maybe here
     spriteRenderer.color = new Color(191, 0, 0, 1);
     spriteRenderer.sortingOrder = 0;
 
@@ -60,6 +110,14 @@ public class Fighter : MonoBehaviour
     if (!GetComponent<Player>()) 
     {
       GameManager.instance.RemoveActor(this.GetComponent<Actor>());
+
+      //LootManager.instance.DropLoot(transform.position, enemyType);
+
+      // Random chance for chest drop
+      //if (Random.value < 0.5f) // 50% drop chance, adjust as needed
+      //{
+      //  DropChest();
+      //}
     }
   }
 
@@ -86,8 +144,8 @@ public class Fighter : MonoBehaviour
   (
       maxHp: maxHp,
       hp: hp,
-      defense: defense,
-      power: power,
+      defense: baseDefense,
+      power: basePower,
       target: target != null ? target.name : null
   );
 
@@ -95,8 +153,8 @@ public class Fighter : MonoBehaviour
   {
     maxHp = state.MaxHp;
     hp = state.Hp;
-    defense = state.Defense;
-    power = state.Power;
+    baseDefense = state.Defense;
+    basePower = state.Power;
     target = GameManager.instance.Actors.Find(a => a.name == state.Target);
   }
 }

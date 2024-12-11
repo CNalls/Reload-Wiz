@@ -5,8 +5,11 @@ using System.Collections.Generic;
 public class Item : Entity 
 {
   [SerializeField] private Consumable consumable;
+  [SerializeField] private Equippable equippable;
 
   public Consumable Consumable { get => consumable; }
+
+  public Equippable Equippable { get => equippable; }
 
   private void OnValidate() 
   {
@@ -29,19 +32,24 @@ public class Item : Entity
 
   public void LoadState(ItemState state) 
   {
-    if (!state.IsVisible) 
-    {
-      GetComponent<SpriteRenderer>().enabled = false;
-    }
+      if (!state.IsVisible) 
+      {
+        GetComponent<SpriteRenderer>().enabled = false;
+      }
 
-    if (state.Parent != "") 
-    {
-      GameObject parent = GameObject.Find(state.Parent);
-      parent.GetComponent<Inventory>().Add(this);
-    }
+      if (state.Parent is not "") 
+      {
+        GameObject parent = GameObject.Find(state.Parent);
+        parent.GetComponent<Inventory>().Add(this);
 
-    transform.position = state.Position;
-  }
+        if (equippable is not null && state.Name.Contains("(E)")) 
+        {
+          parent.GetComponent<Equipment>().EquipToSlot(equippable.EquipmentType.ToString(), this, false);
+        }
+      }
+
+      transform.position = state.Position;
+  } 
 }
 
 [System.Serializable]

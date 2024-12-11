@@ -32,9 +32,36 @@ static public class Action
     GameManager.instance.EndTurn();
   }
 
-  static public void MeleeAction(Actor actor, Actor target) 
+  static public class ColorCodes
   {
-    int damage = actor.GetComponent<Fighter>().Power - target.GetComponent<Fighter>().Defense;
+      public const string Default = "#FFFFFF"; // White
+      public const string Damage = "#FF0000"; // Red
+      public const string Info = "#0DA2FF";  // Blue
+      public const string Warning = "#808080"; // Gray
+  }
+
+  static public void MeleeAction(Actor actor, Actor target)
+  {
+      int damage = actor.GetComponent<Fighter>().Power() - target.GetComponent<Fighter>().Defense();
+      string attackDesc = $"{actor.name} attacks {target.name}";
+      string colorHex = actor.GetComponent<Player>() ? ColorCodes.Default : ColorCodes.Damage;
+
+      if (damage > 0)
+      {
+          UIManager.instance.AddMessage($"{attackDesc} for {damage} hit points.", colorHex);
+          target.GetComponent<Fighter>().Hp -= damage;
+      }
+      else
+      {
+          UIManager.instance.AddMessage($"{attackDesc} but does no damage.", colorHex);
+      }
+
+      GameManager.instance.EndTurn();
+  }
+
+/*  static public void MeleeAction(Actor actor, Actor target) 
+  {
+    int damage = actor.GetComponent<Fighter>().Power() - target.GetComponent<Fighter>().Defense();
 
     string attackDesc = $"{actor.name} attacks {target.name}";
 
@@ -60,7 +87,7 @@ static public class Action
     }
     GameManager.instance.EndTurn();
   }
-
+*/
   static public void TakeStairsAction(Actor actor) 
   {
     Vector3Int pos = MapManager.instance.FloorMap.WorldToCell(actor.transform.position);
@@ -119,6 +146,11 @@ static public class Action
 
   static public void DropAction(Actor actor, Item item) 
   {
+    if (actor.Equipment.ItemIsEquipped(item))
+    {
+      actor.Equipment.ToggleEquip(item);
+    }
+
     actor.Inventory.Drop(item);
 
     UIManager.instance.ToggleDropMenu();
@@ -160,4 +192,18 @@ static public class Action
       GameManager.instance.EndTurn();
     }
   }
+  static public void EquipAction(Actor actor, Item item) 
+  {
+    if (item.Equippable is null) 
+    {
+      UIManager.instance.AddMessage($"The {item.name} cannot be equipped.", "#808080");
+      return;
+    }
+
+    actor.Equipment.ToggleEquip(item);
+
+    UIManager.instance.ToggleInventory();
+    GameManager.instance.EndTurn();
+  }
+
 }

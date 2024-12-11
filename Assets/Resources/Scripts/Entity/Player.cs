@@ -134,6 +134,25 @@ sealed class Player : MonoBehaviour, Controls.IPlayerActions
     }
   }
 
+  /*public void OnInteract(InputAction.CallbackContext context) 
+  {
+      if (context.performed) 
+      {
+          Vector3 playerPosition = transform.position;
+          LootChest chest = GameManager.instance.GetChestAtLocation(playerPosition);
+
+          if (chest != null) 
+          {
+              // Open the loot menu in UIManager
+              UIManager.instance.OpenLootMenu(chest);
+          }
+          else 
+          {
+              UIManager.instance.AddMessage("There's nothing here to interact with.", "#808080");
+          }
+      }
+  }
+*/
   public void OnConfirm(InputAction.CallbackContext context) 
   {
     if (context.performed) 

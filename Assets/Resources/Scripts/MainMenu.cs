@@ -41,6 +41,10 @@ public class MainMenu : MonoBehaviour
   {
     SceneManager.LoadScene("Tutorial");
   }
+  public void Beastiary()
+  {
+    SceneManager.LoadScene("Beastiary");
+  }
 
   public void QuitGame() 
   {

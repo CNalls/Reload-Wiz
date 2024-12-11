@@ -167,7 +167,8 @@ public class MapManager : MonoBehaviour
     AddTileMapToDictionary(obstacleMap);
     SetupFogMap();
 
-    if (!isNewGame) {
+    if (!isNewGame) 
+    {
       GameManager.instance.RefreshPlayer();
     }
   }
